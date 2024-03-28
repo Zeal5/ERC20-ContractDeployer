@@ -1,7 +1,6 @@
 broadcast/
 cache/
 docs/
-lib/
 out/
 .env
 
