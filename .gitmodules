@@ -1,0 +1,3 @@
+[submodule "ERC20-ContractDeployer-TgBot"]
+	path = ERC20-ContractDeployer-TgBot
+	url = https://github.com/Zeal5/ERC20-ContractDeployer-TgBot
