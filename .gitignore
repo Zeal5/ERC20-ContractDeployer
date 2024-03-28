@@ -3,4 +3,5 @@ cache/
 docs/
 out/
 .env
+lib/
 
