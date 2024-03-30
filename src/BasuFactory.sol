@@ -1,11 +1,11 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
-import { IUniswapV2Factory } from "../src/interfaces/IUniswapV2Factory.sol";
-import { IUniswapV2Pair } from "../src/interfaces/IUniswapV2Pair.sol";
-import { IUniswapV2Router02 } from "../src/interfaces/IUniswapV2Router02.sol";
-import { IWETH9 } from "../src/interfaces/IWETH9.sol";
-import { BasuToken } from "./basuToken.sol";
+import {IUniswapV2Factory} from "../src/interfaces/IUniswapV2Factory.sol";
+import {IUniswapV2Pair} from "../src/interfaces/IUniswapV2Pair.sol";
+import {IUniswapV2Router02} from "../src/interfaces/IUniswapV2Router02.sol";
+import {IWETH9} from "../src/interfaces/IWETH9.sol";
+import {BasuToken} from "./basuToken.sol";
 
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
@@ -16,14 +16,13 @@ contract BasuFactory is Ownable(msg.sender) {
     IUniswapV2Factory uniFactory;
     IWETH9 weth;
 
-    event DeployedStatus(bool);
+    event TokenDeployed(address token, address owner);
 
     constructor() {
         uniRouter = IUniswapV2Router02(uniSwapRouterAddress);
         uniFactory = IUniswapV2Factory(uniRouter.factory());
         weth = IWETH9(payable(uniRouter.WETH()));
         // add msg.owner as owner of factory
-        emit DeployedStatus(true);
     }
 
     function DeployToken(
@@ -35,28 +34,22 @@ contract BasuFactory is Ownable(msg.sender) {
         uint32 owner_tax_share,
         address ownerFunds,
         address basuFunds
-    ) external onlyOwner returns (address) {
+    ) external returns (address) {
         BasuToken token = new BasuToken(
-            initialSupply,
-            _name,
-            _symbol,
-            buyTaxPercentage,
-            sellTaxPercentage,
-            owner_tax_share,
-            ownerFunds,
-            basuFunds
+            initialSupply, _name, _symbol, buyTaxPercentage, sellTaxPercentage, owner_tax_share, ownerFunds, basuFunds
         );
+        emit TokenDeployed(address(token), address(msg.sender));
         return address(token);
     } // function ends
 
-    function addLiquidity(address _token) public payable onlyOwner {
-        weth.deposit{ value: msg.value }();
-			// get token balances
+    function addLiquidity(address _token) public payable {
+        weth.deposit{value: msg.value}();
+        // get token balances
         uint256 token_balance = ERC20(_token).balanceOf(address(this));
         uint256 weth_balance = weth.balanceOf(address(this));
-				// get approvals
-				ERC20(_token).approve(uniSwapRouterAddress,token_balance);
-				weth.approve(uniSwapRouterAddress,weth_balance);
+        // get approvals
+        ERC20(_token).approve(uniSwapRouterAddress, token_balance);
+        weth.approve(uniSwapRouterAddress, weth_balance);
 
         uniRouter.addLiquidity(
             _token,
@@ -70,9 +63,5 @@ contract BasuFactory is Ownable(msg.sender) {
         );
     } // function ends
 
-		receive() external payable {}
+    receive() external payable {}
 } //contract ends
-
-
-
-
