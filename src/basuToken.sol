@@ -42,6 +42,8 @@ contract BasuToken is ERC20, Ownable(msg.sender) {
     event TaxTransfer(address indexed from, address indexed to, uint256 amount);
     // When max buy/sell amount is updated
     event maxTxAmountUpdated(uint256 newMaxTxAmount);
+		// When token is deployed
+    event TokenDeployed(address token, address owner,address pool, string name, string symbol, uint32 buyTax, uint32 sellTax);
 
     // @Dev Raised when ownerOnly functions are called by !owner
     error UnauthorizedAccount();
@@ -89,6 +91,7 @@ contract BasuToken is ERC20, Ownable(msg.sender) {
         // mint initial to end user address
         _mint(msg.sender, initialSupply);
         maxTxAmount = (initialSupply * 2) / 100;
+				emit TokenDeployed(address(this), address(msg.sender), liquidityPool,_name, _symbol,_buyTax, _sellTax);
     }
 
     // Getter functions
