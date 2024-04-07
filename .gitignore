@@ -5,3 +5,5 @@ out/
 .env
 lib/
 
+.basuTokenEnv
+FFinterface.sol

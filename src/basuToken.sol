@@ -6,10 +6,10 @@ import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import "src/interfaces/IUniswapV2Factory.sol";
 import "src/interfaces/IUniswapV2Router02.sol";
 
+// 0x94cC0AaC535CCDB3C01d6787D6413C739ae12bc4
 contract BasuToken is ERC20, Ownable(msg.sender) {
     // UniSwapV2 Router address
-    IUniswapV2Router02 internal constant router =
-        IUniswapV2Router02(0x6BDED42c6DA8FBf0d2bA55B2fa120C5e0c8D7891);
+    IUniswapV2Router02 internal router;
     // address of liq pool
     address internal immutable liquidityPool;
     // address for pair
@@ -71,8 +71,11 @@ contract BasuToken is ERC20, Ownable(msg.sender) {
         uint32 sellTaxPercentage,
         uint32 owner_tax_share, // @Dev % share of ownerPool
         address _owner_funds_address,
-        address _basu_funds_address
+        address _basu_funds_address,
+				address _dexAddress
     ) ERC20(_name, _symbol) {
+        router = IUniswapV2Router02(_dexAddress);
+
         ownerFunds = _owner_funds_address;
         basuFunds = _basu_funds_address;
         _buyTax = buyTaxPercentage;
@@ -81,7 +84,7 @@ contract BasuToken is ERC20, Ownable(msg.sender) {
 
         // @Dev create liq pool
         IUniswapV2Factory factory = IUniswapV2Factory(router.factory());
-        address weth = router.WETH();
+        address weth = 0x4200000000000000000000000000000000000006;
         liquidityPool = factory.createPair(address(this), weth);
 
         isExcludedFromTax[msg.sender] = true;

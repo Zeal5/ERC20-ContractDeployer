@@ -35,7 +35,7 @@ contract ERC20Script is Script {
     // uint256 private_key = vm.envUint("deployer");
     // address deployer = vm.addr(private_key);
     uint256 private_key;
-    address uniSwapRouterAddress = 0x6BDED42c6DA8FBf0d2bA55B2fa120C5e0c8D7891;
+    address uniSwapRouterAddress = 0x94cC0AaC535CCDB3C01d6787D6413C739ae12bc4;
     address deployer;
 
     function setUp() external {
@@ -60,7 +60,8 @@ contract ERC20Script is Script {
             sellTaxPercentage,
             owner_tax_share,
 						ownerFunds,
-						basuFunds
+						basuFunds,
+						uniSwapRouterAddress
         );
         uniRouter = IUniswapV2Router02(uniSwapRouterAddress);
         uniFactory = IUniswapV2Factory(uniRouter.factory());

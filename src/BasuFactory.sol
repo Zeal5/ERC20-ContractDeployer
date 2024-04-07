@@ -11,17 +11,17 @@ import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 
 contract BasuFactory is Ownable(msg.sender) {
-    address uniSwapRouterAddress = 0x6BDED42c6DA8FBf0d2bA55B2fa120C5e0c8D7891;
     IUniswapV2Router02 uniRouter;
     IUniswapV2Factory uniFactory;
     IWETH9 weth;
 
     event TokenDeployed(address token, address owner);
+		event LiquidityAdded(address token, uint tokensAdded, uint WETHAdded);
 
-    constructor() {
-        uniRouter = IUniswapV2Router02(uniSwapRouterAddress);
+    constructor(address _dexAddress) {
+        uniRouter = IUniswapV2Router02(_dexAddress);
         uniFactory = IUniswapV2Factory(uniRouter.factory());
-        weth = IWETH9(payable(uniRouter.WETH()));
+        weth = IWETH9(payable(0x4200000000000000000000000000000000000006));
         // add msg.owner as owner of factory
     }
 
@@ -36,7 +36,7 @@ contract BasuFactory is Ownable(msg.sender) {
         address basuFunds
     ) external returns (address) {
         BasuToken token = new BasuToken(
-            initialSupply, _name, _symbol, buyTaxPercentage, sellTaxPercentage, owner_tax_share, ownerFunds, basuFunds
+            initialSupply, _name, _symbol, buyTaxPercentage, sellTaxPercentage, owner_tax_share, ownerFunds, basuFunds, address(uniRouter)
         );
         emit TokenDeployed(address(token), address(msg.sender));
         return address(token);
@@ -48,8 +48,8 @@ contract BasuFactory is Ownable(msg.sender) {
         uint256 token_balance = ERC20(_token).balanceOf(address(this));
         uint256 weth_balance = weth.balanceOf(address(this));
         // get approvals
-        ERC20(_token).approve(uniSwapRouterAddress, token_balance);
-        weth.approve(uniSwapRouterAddress, weth_balance);
+        ERC20(_token).approve(address(uniRouter), token_balance);
+        weth.approve(address(uniRouter), weth_balance);
 
         uniRouter.addLiquidity(
             _token,
@@ -61,6 +61,7 @@ contract BasuFactory is Ownable(msg.sender) {
             address(this),
             block.timestamp
         );
+				emit LiquidityAdded(_token, token_balance, weth_balance);
     } // function ends
 
     receive() external payable {}
