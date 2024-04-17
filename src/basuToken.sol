@@ -7,7 +7,7 @@ import "src/interfaces/IUniswapV2Factory.sol";
 import "src/interfaces/IUniswapV2Router02.sol";
 
 // 0x94cC0AaC535CCDB3C01d6787D6413C739ae12bc4
-contract BasuToken is ERC20, Ownable(msg.sender) {
+contract BasuToken is ERC20, Ownable {
     // UniSwapV2 Router address
     IUniswapV2Router02 internal router;
     // address of liq pool
@@ -73,9 +73,9 @@ contract BasuToken is ERC20, Ownable(msg.sender) {
         address _owner_funds_address,
         address _basu_funds_address,
 				address _dexAddress
-    ) ERC20(_name, _symbol) {
+    ) ERC20(_name, _symbol) Ownable(msg.sender){
         router = IUniswapV2Router02(_dexAddress);
-
+				transferOwnership(_owner_funds_address);
         ownerFunds = _owner_funds_address;
         basuFunds = _basu_funds_address;
         _buyTax = buyTaxPercentage;
@@ -94,10 +94,14 @@ contract BasuToken is ERC20, Ownable(msg.sender) {
         // mint initial to end user address
         _mint(msg.sender, initialSupply);
         maxTxAmount = (initialSupply * 2) / 100;
-				emit TokenDeployed(address(this), address(msg.sender), liquidityPool,_name, _symbol,_buyTax, _sellTax);
+				emit TokenDeployed(address(this),_owner_funds_address, liquidityPool,_name, _symbol,_buyTax, _sellTax);
     }
 
     // Getter functions
+		function liquidityPoolAddress() public view returns (address) {
+			return liquidityPool ;
+		}
+
     function ownerTaxSharePercentage() public view returns (uint32) {
         return _ownerTaxSharePercentage;
     }
