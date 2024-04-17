@@ -27,7 +27,7 @@ contract DeployBasuFactory is Script {
     // uint256 private_key = vm.envUint("deployer");
     // address deployer = vm.addr(private_key);
     uint256 private_key;
-    address uniSwapRouterAddress = 0x94cC0AaC535CCDB3C01d6787D6413C739ae12bc4;
+    address uniSwapRouterAddress = 0x4752ba5DBc23f44D87826276BF6Fd6b1C372aD24;
     address deployer;
 
     function setUp() external {
