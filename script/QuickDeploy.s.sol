@@ -1,0 +1,74 @@
+// SPDX-License-Identifier: UNLICENSED
+pragma solidity ^0.8.0;
+
+import "forge-std/Test.sol";
+
+import { BasuFactory } from "../src/BasuFactory.sol";
+import { BasuToken } from "../src/basuToken.sol";
+import { Script, console } from "forge-std/Script.sol";
+import { console } from "forge-std/console.sol";
+
+import { IUniswapV2Factory } from "../src/interfaces/IUniswapV2Factory.sol";
+import { IUniswapV2Pair } from "../src/interfaces/IUniswapV2Pair.sol";
+import { IUniswapV2Router02 } from "../src/interfaces/IUniswapV2Router02.sol";
+import { IWETH9 } from "../src/interfaces/IWETH9.sol";
+import { UNCX } from "../src/interfaces/UNCX.sol";
+
+contract ERC20Script is Script {
+    // ERC20 args
+    uint256 initialSupply = 1_000_000 * 10 ** 18;
+    string _name = "BasuToken";
+    string _symbol = "BSU";
+    uint32 buyTaxPercentage = 2;
+    uint32 sellTaxPercentage = 8;
+    uint32 owner_tax_share = 80; // @Dev % share of ownerPool
+    address basuFunds = 0x23618e81E3f5cdF7f54C3d65f7FBc0aBf5B21E8f;
+    address ownerFunds = 0xa0Ee7A142d267C1f36714E4a8F75612F20a79720;
+
+    BasuToken token;
+    BasuFactory tokenFactory;
+    IUniswapV2Router02 uniRouter;
+    IUniswapV2Factory uniFactory;
+    IUniswapV2Pair tokenPair;
+    IWETH9 weth;
+    address pairAddress;
+
+    address uniSwapRouterAddress = 0x4752ba5DBc23f44D87826276BF6Fd6b1C372aD24;
+
+    function setUp() external {
+        console.log("Starting ...");
+        uniRouter = IUniswapV2Router02(uniSwapRouterAddress);
+        uniFactory = IUniswapV2Factory(uniRouter.factory());
+    }
+
+    function quickDeploy() internal {
+        vm.startBroadcast();
+        tokenFactory = BasuFactory(payable(0x7969c5eD335650692Bc04293B07F5BF2e7A673C0));
+        BasuToken _token = tokenFactory.quickDeploy{ value: 2 ether }(
+            initialSupply,
+            _name,
+            _symbol,
+            buyTaxPercentage,
+            sellTaxPercentage,
+            owner_tax_share,
+            basuFunds,
+            ownerFunds
+        );
+    //     address _pool = _token.liquidityPoolAddress();
+				// uint _tokens =IUniswapV2Pair(_pool).balanceOf(address(tokenFactory));
+				// console.log(_tokens);
+    //     tokenFactory.lock_lp{ value: 0.03 ether }(
+    //         _pool,
+				// 		_tokens,
+    //         uint256(1713941059),
+    //         payable(address(tokenFactory)),
+    //         true,
+    //         payable(address(tokenFactory)),
+    //         1
+    //     );
+    }
+
+    function run() public {
+        quickDeploy();
+    }
+}

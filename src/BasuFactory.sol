@@ -1,6 +1,5 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
-
 import { IUniswapV2Factory } from "../src/interfaces/IUniswapV2Factory.sol";
 import { IUniswapV2Pair } from "../src/interfaces/IUniswapV2Pair.sol";
 import { IUniswapV2Router02 } from "../src/interfaces/IUniswapV2Router02.sol";
@@ -36,7 +35,7 @@ contract BasuFactory is Ownable(msg.sender) {
         uint32 owner_tax_share,
         address ownerFunds,
         address basuFunds
-    ) external returns (BasuToken) {
+    ) public returns (BasuToken) {
         BasuToken token = new BasuToken(
             initialSupply,
             _name,
@@ -74,7 +73,6 @@ contract BasuFactory is Ownable(msg.sender) {
         emit LiquidityAdded(_token, token_balance, weth_balance);
     } // function ends
 
-
     function lock_lp(
         address _lpToken,
         uint256 _amount,
@@ -82,17 +80,17 @@ contract BasuFactory is Ownable(msg.sender) {
         address payable _referal,
         bool _fee_in_eth,
         address payable _withdrawer,
-				uint16 countryCode
-    )payable public {
+        uint16 countryCode
+    ) public payable {
         uniPair = IUniswapV2Pair(_lpToken);
         uint256 _bal = uniPair.balanceOf(address(this));
         address uncxAddress = 0xc4E637D37113192F4F1F060DaEbD7758De7F4131;
         uniPair.approve(uncxAddress, _bal);
         UNCX locker = UNCX(uncxAddress);
-				// get fees 
-				(uint ethFee,,,,,,,,uint referralDiscount) = locker.gFees();
-				uint lockerFee = ethFee * (1000 - referralDiscount) / 1000;
-        locker.lockLPToken{value : lockerFee }(
+        // get fees
+        (uint256 ethFee,,,,,,,, uint256 referralDiscount) = locker.gFees();
+        uint256 lockerFee = ethFee * (1000 - referralDiscount) / 1000;
+        locker.lockLPToken{ value: lockerFee }(
             _lpToken,
             _amount,
             _unlockDate,
@@ -102,5 +100,30 @@ contract BasuFactory is Ownable(msg.sender) {
             countryCode
         );
     }
-    receive() external payable {}
+    // create a withdraw method for tokens and eth
+    function quickDeploy(
+        uint256 initialSupply,
+        string memory _name,
+        string memory _symbol,
+        uint32 buyTaxPercentage,
+        uint32 sellTaxPercentage,
+        uint32 owner_tax_share,
+        address ownerFunds,
+        address basuFunds
+    ) external payable returns (BasuToken){
+        BasuToken deployed_token = DeployToken(
+            initialSupply,
+            _name,
+            _symbol,
+            buyTaxPercentage,
+            sellTaxPercentage,
+            owner_tax_share,
+            ownerFunds,
+            basuFunds
+        );
+        addLiquidity(address(deployed_token));
+        emit TokenDeployed(address(deployed_token), address(ownerFunds));
+				return deployed_token;
+    }
+    receive() external payable { }
 } //contract ends
