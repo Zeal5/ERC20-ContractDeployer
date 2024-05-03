@@ -101,29 +101,5 @@ contract BasuFactory is Ownable(msg.sender) {
         );
     }
     // create a withdraw method for tokens and eth
-    function quickDeploy(
-        uint256 initialSupply,
-        string memory _name,
-        string memory _symbol,
-        uint32 buyTaxPercentage,
-        uint32 sellTaxPercentage,
-        uint32 owner_tax_share,
-        address ownerFunds,
-        address basuFunds
-    ) external payable returns (BasuToken){
-        BasuToken deployed_token = DeployToken(
-            initialSupply,
-            _name,
-            _symbol,
-            buyTaxPercentage,
-            sellTaxPercentage,
-            owner_tax_share,
-            ownerFunds,
-            basuFunds
-        );
-        addLiquidity(address(deployed_token));
-        emit TokenDeployed(address(deployed_token), address(ownerFunds));
-				return deployed_token;
-    }
     receive() external payable { }
 } //contract ends
